@@ -25,15 +25,6 @@ public class JwtService {
                 .sign(Algorithm.HMAC256(secretKey));
     }
 
-    public boolean validateToken(String token, String username) {
-        try {
-            String extractedUsername = extractUsername(token);
-            return extractedUsername.equals(username) && !isTokenExpired(token);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     public String extractUsername(String token) {
         return JWT.require(Algorithm.HMAC256(secretKey))
                 .build()
