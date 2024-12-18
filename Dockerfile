@@ -1,14 +1,12 @@
-# Usamos una imagen de OpenJDK como base
-FROM openjdk:17-jdk-slim
-
-# Establecemos el directorio de trabajo dentro del contenedor
+FROM maven:3.8.8-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY pom.xml ./ 
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean install -DskipTests
 
-# Copiamos el archivo .jar de tu aplicación dentro del contenedor
-COPY target/oauth-service-0.0.1-SNAPSHOT.jar oauthservice.jar
-
-# Exponemos el puerto en el que la aplicación escucha
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/oauth-service-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8000
-
-# Comando para ejecutar el archivo .jar
-ENTRYPOINT ["java", "-jar", "oauthservice.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
